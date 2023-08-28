@@ -1,3 +1,6 @@
+// NEXT STEPS
+// 1) Account for movable camara
+
 class Point {
     constructor(public x: number, public y: number, public z: number) {}
 }
@@ -49,6 +52,9 @@ class Camera {
             projectionVertices.push(projectionVertex);
         }
 
+        console.log(object.vertices);
+        console.log(projectionVertices);
+
         return new Triangle(projectionVertices, object.color);
     }
 
@@ -74,9 +80,6 @@ class Camera {
         const projectionY = this.position.y + alfaY * t;
         const projectionZ = this.position.z + alfaZ * t;
 
-        console.log(point.x, point.y, point.z);
-        console.log(projectionX, projectionY, projectionZ);
-
         return new Point(projectionX, projectionY, projectionZ);
     }
 }
@@ -96,20 +99,55 @@ class Display {
     }
 
     static stroke(object: Triangle) {
+        this.drawAxis();
+
         const c = Display.c;
-        c.fillStyle = object.color;
+        const screenObject = this.toScreenCoordinates(object);
+        c.strokeStyle = screenObject.color;
         c.beginPath();
-        c.moveTo(object.vertices[0].x, object.vertices[0].y);
-        c.lineTo(object.vertices[1].x, object.vertices[1].y);
-        c.lineTo(object.vertices[2].x, object.vertices[2].y);
-        c.lineTo(object.vertices[0].x, object.vertices[0].y);
+        c.moveTo(screenObject.vertices[0].x, screenObject.vertices[0].y);
+        c.lineTo(screenObject.vertices[1].x, screenObject.vertices[1].y);
+        c.lineTo(screenObject.vertices[2].x, screenObject.vertices[2].y);
+        c.lineTo(screenObject.vertices[0].x, screenObject.vertices[0].y);
+        c.stroke();
+    }
+
+    // Assuming that the object received is already on the screen plane
+    private static toScreenCoordinates(object: Triangle) {
+        const { width, height } = Display.screen;
+        const verticesOnScreenCoordinates: Array<Point> = [];
+
+        for (const vertex of object.vertices) {
+            const x = width / 2 + vertex.x;
+            const y = height / 2 - vertex.y;
+            const point = new Point(x, y, 0); // Arbitrary z value, as screen coordinates only have x and y
+            verticesOnScreenCoordinates.push(point);
+        }
+
+        return new Triangle(verticesOnScreenCoordinates, object.color);
+    }
+
+    private static drawAxis() {
+        const c = Display.c;
+        const { width, height } = Display.screen;
+        const [xOrigin, yOrigin] = [width / 2, height / 2];
+        c.strokeStyle = "black";
+        c.beginPath();
+        c.moveTo(xOrigin, yOrigin);
+        c.lineTo(xOrigin + width, yOrigin);
+        c.moveTo(xOrigin, yOrigin);
+        c.lineTo(xOrigin - width, yOrigin);
+        c.moveTo(xOrigin, yOrigin);
+        c.lineTo(xOrigin, yOrigin + height);
+        c.moveTo(xOrigin, yOrigin);
+        c.lineTo(xOrigin, yOrigin - height);
         c.stroke();
     }
 }
 
 (function t() {
     const triangle = new Triangle([
-        new Point(0, 200, 100),
+        new Point(0, 200, 75),
         new Point(200, 200, 100),
         new Point(200, 0, 100),
     ]);
