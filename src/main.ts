@@ -102,12 +102,13 @@ class Camera {
     public draw() {
         console.log(this.position);
 
+        Display.clear();
+
         const objectsOnScreen = this.projectObjectsOnScreen(); // Objects projected on screen but on global coordinates
         const objectsOnScreenCoordinates =
             this.objectsToScreenPlaneCoordinates(objectsOnScreen); // Objects on screen's x, y coordinates
 
         for (const object of objectsOnScreenCoordinates) {
-            Display.clear();
             Display.stroke(object);
         }
     }
@@ -316,54 +317,141 @@ class InputHandler {
     }
 
     q() {
-        this.camera.rotate("y", 1);
+        this.camera.rotate("y", 2);
     }
 
     w() {
-        this.camera.rotate("y", -1);
+        this.camera.rotate("y", -2);
     }
 
     a() {
-        this.camera.rotate("x", 1);
+        this.camera.rotate("x", 2);
     }
 
     s() {
-        this.camera.rotate("x", -1);
+        this.camera.rotate("x", -2);
     }
 
     z() {
-        this.camera.rotate("z", 1);
+        this.camera.rotate("z", 2);
     }
 
     x() {
-        this.camera.rotate("z", -1);
+        this.camera.rotate("z", -2);
     }
 
     ArrowUp() {
-        this.camera.translate(0, 0, 5);
+        this.camera.translate(0, 10, 0);
     }
 
     ArrowDown() {
-        this.camera.translate(0, 0, -5);
+        this.camera.translate(0, -10, 0);
     }
 
     ArrowRight() {
-        this.camera.translate(5);
+        this.camera.translate(-10);
     }
 
     ArrowLeft() {
-        this.camera.translate(-5);
+        this.camera.translate(10);
+    }
+
+    Shift() {
+        this.camera.translate(0, 0, 10);
+    }
+
+    Control() {
+        this.camera.translate(0, 0, -10);
     }
 }
 
 (function t() {
-    const triangle = new Triangle([
-        new Point(0, 200, 100),
-        new Point(200, 200, 100),
-        new Point(200, 0, 100),
-    ]);
-    const camera = new Camera(50, new Point(0, 0, 1), new Point(0, 1, 0));
-    camera.addObject(triangle);
+    const cube = [
+        // Front
+        new Triangle([
+            new Point(0, 200, 600),
+            new Point(0, 0, 600),
+            new Point(200, 0, 600),
+        ]),
+        new Triangle([
+            new Point(0, 200, 600),
+            new Point(200, 200, 600),
+            new Point(200, 0, 600),
+        ]),
+
+        // Left
+        new Triangle([
+            new Point(200, 200, 800),
+            new Point(200, 200, 600),
+            new Point(200, 0, 600),
+        ]),
+        new Triangle([
+            new Point(200, 200, 800),
+            new Point(200, 0, 800),
+            new Point(200, 0, 600),
+        ]),
+
+        // Top
+        new Triangle([
+            new Point(0, 200, 600),
+            new Point(0, 200, 800),
+            new Point(200, 200, 600),
+        ]),
+        new Triangle([
+            new Point(0, 200, 800),
+            new Point(200, 200, 800),
+            new Point(200, 200, 600),
+        ]),
+
+        // Right
+        new Triangle([
+            new Point(0, 0, 600),
+            new Point(0, 0, 800),
+            new Point(0, 200, 600),
+        ]),
+        new Triangle([
+            new Point(0, 200, 800),
+            new Point(0, 0, 800),
+            new Point(0, 200, 600),
+        ]),
+
+        // Bottom
+        new Triangle([
+            new Point(0, 0, 600),
+            new Point(0, 0, 800),
+            new Point(200, 0, 600),
+        ]),
+        new Triangle([
+            new Point(200, 0, 800),
+            new Point(0, 0, 800),
+            new Point(200, 0, 600),
+        ]),
+
+        // Back
+        new Triangle(
+            [
+                new Point(0, 0, 800),
+                new Point(200, 0, 800),
+                new Point(0, 200, 800),
+            ],
+            "green",
+        ),
+        new Triangle(
+            [
+                new Point(0, 200, 800),
+                new Point(200, 200, 800),
+                new Point(200, 0, 800),
+            ],
+            "green",
+        ),
+    ];
+
+    const camera = new Camera(200, new Point(0, 0, 1), new Point(0, 1, 0));
+    for (const triangle of cube) {
+        camera.addObject(triangle);
+    }
 
     new InputHandler(camera);
+
+    camera.draw();
 })();
