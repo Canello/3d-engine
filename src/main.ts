@@ -100,11 +100,14 @@ class Camera {
     }
 
     public draw() {
+        console.log(this.position);
+
         const objectsOnScreen = this.projectObjectsOnScreen(); // Objects projected on screen but on global coordinates
         const objectsOnScreenCoordinates =
             this.objectsToScreenPlaneCoordinates(objectsOnScreen); // Objects on screen's x, y coordinates
 
         for (const object of objectsOnScreenCoordinates) {
+            Display.clear();
             Display.stroke(object);
         }
     }
@@ -209,16 +212,20 @@ class Display {
     ) as HTMLCanvasElement;
     private static c = Display.screen.getContext("2d")!;
 
-    static get width() {
+    public static get width() {
         return Display.screen.width;
     }
 
-    static get height() {
+    public static get height() {
         return Display.screen.height;
     }
 
-    static stroke(object: Triangle) {
-        this.drawAxis();
+    public static clear() {
+        Display.c.clearRect(0, 0, screen.width, screen.height);
+        Display.drawAxis();
+    }
+
+    public static stroke(object: Triangle) {
         const c = Display.c;
         const canvasObject = this.toCanvasCoordinates(object);
         c.strokeStyle = canvasObject.color;
@@ -263,6 +270,92 @@ class Display {
     }
 }
 
+class KeyboardListener {
+    private observers: Array<any>;
+
+    constructor() {
+        this.observers = [];
+        this.listen();
+    }
+
+    public subscribe(f: Function | Array<Function>) {
+        if (typeof f === "function") return this.observers.push(f);
+
+        for (const func of f) {
+            this.observers.push(func);
+        }
+    }
+
+    private listen() {
+        document.addEventListener("keydown", (event) => {
+            this.notifyAll(event.key);
+        });
+    }
+
+    private notifyAll(key: string) {
+        for (const observer of this.observers) {
+            observer(key);
+        }
+    }
+}
+
+class InputHandler {
+    keyboardListener: KeyboardListener;
+    [key: string]: any;
+
+    constructor(private camera: Camera) {
+        this.keyboardListener = new KeyboardListener();
+        this.keyboardListener.subscribe(this.handleKeyboardInput.bind(this));
+    }
+
+    private handleKeyboardInput(key: string) {
+        if (typeof this[key] === "function") {
+            this[key]();
+            this.camera.draw();
+        }
+    }
+
+    q() {
+        this.camera.rotate("y", 1);
+    }
+
+    w() {
+        this.camera.rotate("y", -1);
+    }
+
+    a() {
+        this.camera.rotate("x", 1);
+    }
+
+    s() {
+        this.camera.rotate("x", -1);
+    }
+
+    z() {
+        this.camera.rotate("z", 1);
+    }
+
+    x() {
+        this.camera.rotate("z", -1);
+    }
+
+    ArrowUp() {
+        this.camera.translate(0, 0, 5);
+    }
+
+    ArrowDown() {
+        this.camera.translate(0, 0, -5);
+    }
+
+    ArrowRight() {
+        this.camera.translate(5);
+    }
+
+    ArrowLeft() {
+        this.camera.translate(-5);
+    }
+}
+
 (function t() {
     const triangle = new Triangle([
         new Point(0, 200, 100),
@@ -271,9 +364,6 @@ class Display {
     ]);
     const camera = new Camera(50, new Point(0, 0, 1), new Point(0, 1, 0));
     camera.addObject(triangle);
-    camera.draw();
-    setTimeout(() => {
-        camera.rotate("y", 90);
-        camera.draw();
-    }, 1000);
+
+    new InputHandler(camera);
 })();
