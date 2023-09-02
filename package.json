@@ -4,13 +4,14 @@
     "description": "",
     "main": "dist/main.js",
     "scripts": {
-        "dev": "tsc --watch",
+        "dev": "nodemon -e ts --exec \"npm run build\"",
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc && node add-extensions.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "nodemon": "^3.0.1",
         "typescript": "^5.1.6"
     },
     "devDependencies": {
