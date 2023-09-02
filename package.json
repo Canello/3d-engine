@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "nodemon -e ts --exec \"npm run build\"",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc && node add-extensions.js"
+        "build": "tsc && node add-js-extensions.js"
     },
     "author": "",
     "license": "ISC",
