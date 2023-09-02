@@ -1,6 +1,6 @@
 import { Point } from "./point";
 import { Display } from "./display";
-import { Triangle } from "./triangle";
+import { WorldObject } from "./world-object";
 
 export class Camera {
     private position: Point;
@@ -8,7 +8,7 @@ export class Camera {
     private i: Point; // Unit vector of screen plane x axis
     private j: Point; // Unit vector of screen plane y axis
     private screenDistance: number;
-    private objects: Array<Triangle>;
+    private objects: Array<WorldObject>;
 
     constructor(
         screenDistance: number = 50,
@@ -23,7 +23,7 @@ export class Camera {
         this.objects = [];
     }
 
-    public addObject(object: Triangle) {
+    public addObject(object: WorldObject) {
         this.objects.push(object);
     }
 
@@ -42,40 +42,18 @@ export class Camera {
     }
 
     public draw() {
-        console.log(this.position);
-
         Display.clear();
-
-        const objectsOnScreen = this.projectObjectsOnScreen(); // Objects projected on screen but on global coordinates
-        const objectsOnScreenCoordinates =
-            this.objectsToScreenPlaneCoordinates(objectsOnScreen); // Objects on screen's x, y coordinates
-
+        // Objects projected on screen but on global coordinates
+        const objectsOnScreen = this.objects.map((object) =>
+            object.transform(this.projectPointOnScreen.bind(this)),
+        );
+        // Objects on screen's x, y coordinates
+        const objectsOnScreenCoordinates = objectsOnScreen.map((object) =>
+            object.transform(this.toScreenPlaneCoordinates.bind(this)),
+        );
         for (const object of objectsOnScreenCoordinates) {
             Display.stroke(object);
         }
-    }
-
-    private projectObjectsOnScreen() {
-        const projections: Array<Triangle> = [];
-
-        for (const object of this.objects) {
-            const projection = this.projectObjectOnScreen(object);
-            projections.push(projection);
-        }
-
-        return projections;
-    }
-
-    private projectObjectOnScreen(object: Triangle) {
-        const objectVertices = object.vertices;
-        const projectionVertices = [];
-
-        for (const objectVertex of objectVertices) {
-            const projectionVertex = this.projectPointOnScreen(objectVertex);
-            projectionVertices.push(projectionVertex);
-        }
-
-        return new Triangle(projectionVertices, object.color);
     }
 
     private projectPointOnScreen(point: Point) {
@@ -106,34 +84,6 @@ export class Camera {
         const zProjection = this.position.z + alfaZ * t;
 
         return new Point(xProjection, yProjection, zProjection);
-    }
-
-    private objectsToScreenPlaneCoordinates(objects: Array<Triangle>) {
-        const objectsInScreenPlaneCoordinates: Array<Triangle> = [];
-
-        for (const object of objects) {
-            const objectInScreenPlaneCoordinates =
-                this.objectToScreenPlaneCoordinates(object);
-            objectsInScreenPlaneCoordinates.push(
-                objectInScreenPlaneCoordinates,
-            );
-        }
-
-        return objectsInScreenPlaneCoordinates;
-    }
-
-    private objectToScreenPlaneCoordinates(object: Triangle) {
-        const verticesInScreenPlaneCoordinates: Array<Point> = [];
-
-        for (const vertex of object.vertices) {
-            const vertexInScreenPlaneCoordinates =
-                this.toScreenPlaneCoordinates(vertex);
-            verticesInScreenPlaneCoordinates.push(
-                vertexInScreenPlaneCoordinates,
-            );
-        }
-
-        return new Triangle(verticesInScreenPlaneCoordinates, object.color);
     }
 
     private toScreenPlaneCoordinates(point: Point) {

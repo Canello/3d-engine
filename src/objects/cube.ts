@@ -1,7 +1,8 @@
 import { Point } from "../classes/point";
 import { Triangle } from "../classes/triangle";
+import { WorldObject } from "../classes/world-object";
 
-export const cube = [
+export const cube = new WorldObject([
     // Front
     new Triangle([
         new Point(0, 200, 600),
@@ -75,4 +76,4 @@ export const cube = [
         ],
         "green",
     ),
-];
+]);

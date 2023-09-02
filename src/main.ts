@@ -5,9 +5,7 @@ import { cube } from "./objects/cube";
 
 (function start() {
     const camera = new Camera(200, new Point(0, 0, 1), new Point(0, 1, 0));
-    for (const triangle of cube) {
-        camera.addObject(triangle);
-    }
+    camera.addObject(cube);
     new InputHandler(camera);
     camera.draw();
 })();

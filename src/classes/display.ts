@@ -1,5 +1,6 @@
 import { Point } from "./point";
 import { Triangle } from "./triangle";
+import { WorldObject } from "./world-object";
 
 export class Display {
     private static screen = document.querySelector(
@@ -7,44 +8,37 @@ export class Display {
     ) as HTMLCanvasElement;
     private static c = Display.screen.getContext("2d")!;
 
-    public static get width() {
-        return Display.screen.width;
-    }
-
-    public static get height() {
-        return Display.screen.height;
-    }
-
     public static clear() {
         Display.c.clearRect(0, 0, screen.width, screen.height);
         Display.drawAxis();
     }
 
-    public static stroke(object: Triangle) {
+    public static stroke(object: WorldObject) {
+        for (const triangle of object.triangles) {
+            Display.strokeTriangle(triangle);
+        }
+    }
+
+    private static strokeTriangle(triangle: Triangle) {
         const c = Display.c;
-        const canvasObject = this.toCanvasCoordinates(object);
-        c.strokeStyle = canvasObject.color;
+        const canvasTriangle = triangle.transform(
+            this.toCanvasCoordinates.bind(this),
+        );
+        c.strokeStyle = canvasTriangle.color;
         c.beginPath();
-        c.moveTo(canvasObject.vertices[0].x, canvasObject.vertices[0].y);
-        c.lineTo(canvasObject.vertices[1].x, canvasObject.vertices[1].y);
-        c.lineTo(canvasObject.vertices[2].x, canvasObject.vertices[2].y);
-        c.lineTo(canvasObject.vertices[0].x, canvasObject.vertices[0].y);
+        c.moveTo(canvasTriangle.vertices[0].x, canvasTriangle.vertices[0].y);
+        c.lineTo(canvasTriangle.vertices[1].x, canvasTriangle.vertices[1].y);
+        c.lineTo(canvasTriangle.vertices[2].x, canvasTriangle.vertices[2].y);
+        c.lineTo(canvasTriangle.vertices[0].x, canvasTriangle.vertices[0].y);
         c.stroke();
     }
 
-    private static toCanvasCoordinates(object: Triangle) {
-        // object must be on the screen plane
+    private static toCanvasCoordinates(point: Point) {
+        // point must be on the screen plane
         const { width, height } = Display.screen;
-        const verticesOnCanvasCoordinates: Array<Point> = [];
-
-        for (const vertex of object.vertices) {
-            const x = width / 2 + vertex.x;
-            const y = height / 2 - vertex.y;
-            const point = new Point(x, y, 0); // Arbitrary z value, as canvas coordinates only have x and y
-            verticesOnCanvasCoordinates.push(point);
-        }
-
-        return new Triangle(verticesOnCanvasCoordinates, object.color);
+        const x = width / 2 + point.x;
+        const y = height / 2 - point.y;
+        return new Point(x, y, 0); // Arbitrary z value, as canvas coordinates only have x and y
     }
 
     private static drawAxis() {
