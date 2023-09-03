@@ -17,51 +17,51 @@ export class InputHandler {
         }
     }
 
-    q() {
+    public q() {
         this.camera.rotate("y", 2);
     }
 
-    w() {
+    public w() {
         this.camera.rotate("y", -2);
     }
 
-    a() {
+    public a() {
         this.camera.rotate("x", 2);
     }
 
-    s() {
+    public s() {
         this.camera.rotate("x", -2);
     }
 
-    z() {
+    public z() {
         this.camera.rotate("z", 2);
     }
 
-    x() {
+    public x() {
         this.camera.rotate("z", -2);
     }
 
-    ArrowUp() {
+    public ArrowUp() {
         this.camera.translate(0, 10, 0);
     }
 
-    ArrowDown() {
+    public ArrowDown() {
         this.camera.translate(0, -10, 0);
     }
 
-    ArrowRight() {
+    public ArrowRight() {
         this.camera.translate(-10);
     }
 
-    ArrowLeft() {
+    public ArrowLeft() {
         this.camera.translate(10);
     }
 
-    Shift() {
+    public Shift() {
         this.camera.translate(0, 0, 10);
     }
 
-    Control() {
+    public Control() {
         this.camera.translate(0, 0, -10);
     }
 }

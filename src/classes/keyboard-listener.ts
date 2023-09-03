@@ -1,8 +1,11 @@
 export class KeyboardListener {
+    private static instance: KeyboardListener | null = null;
     private observers: Array<any>;
 
     constructor() {
         this.observers = [];
+        if (KeyboardListener.instance) return KeyboardListener.instance;
+        KeyboardListener.instance = this;
         this.listen();
     }
 
